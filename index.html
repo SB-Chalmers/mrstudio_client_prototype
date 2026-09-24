@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MR Studio · Session Host</title>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body class="host-page">
+  <header class="host-header">
+    <div>
+      <p class="eyebrow">MR Studio · collaboration prototype</p>
+      <h1>Session Host</h1>
+    </div>
+    <div class="session-pill"><span id="host-status-dot" class="status-dot"></span><span id="host-status">Starting session…</span></div>
+  </header>
+
+  <main class="host-layout">
+    <section class="map-panel" aria-label="Shared table map">
+      <div class="panel-heading">
+        <div><p class="eyebrow">Shared view</p><h2>Table map</h2></div>
+        <strong id="host-layer-label" class="layer-label">Streets</strong>
+      </div>
+      <div class="host-map-frame"><svg id="host-map" class="map-svg" viewBox="0 0 1000 600" role="img" aria-label="Shared annotated table map"></svg></div>
+      <div class="map-footer"><span>100 × 60 cm table extent · 5 × 3 tiles</span><span>Controller 1 <i class="legend-dot c1"></i> &nbsp; Controller 2 <i class="legend-dot c2"></i></span></div>
+    </section>
+
+    <aside class="host-sidebar">
+      <section class="card invite-card">
+        <div class="panel-heading"><div><p class="eyebrow">Session</p><h2>Join with a phone</h2></div><span id="client-count" class="count-badge">0 / 2</span></div>
+        <p class="muted">Both phones scan this QR. The Host assigns Controller 1 and Controller 2 as they join.</p>
+        <div id="qr-code" class="qr-code" aria-label="Client invitation QR code"><span class="muted">Creating session…</span></div>
+        <div class="invite-actions"><a id="invite-link" class="invite-link" href="#" target="_blank" rel="noopener">Client invitation</a><button id="copy-link" class="quiet-button" type="button" disabled>Copy link</button></div>
+        <p id="invite-hint" class="tiny muted">Client page: GitHub Pages</p>
+        <div class="slot-list"><div class="slot"><span><i class="legend-dot c1"></i> Controller 1</span><strong id="slot-1">Waiting</strong></div><div class="slot"><span><i class="legend-dot c2"></i> Controller 2</span><strong id="slot-2">Waiting</strong></div></div>
+      </section>
+      <section class="card monitor-card">
+        <div class="panel-heading"><div><p class="eyebrow">Input monitor</p><h2>Recent actions</h2></div></div>
+        <p id="latest-action" class="latest-action">Waiting for input…</p>
+        <ol id="event-log" class="event-log" aria-live="polite"></ol>
+      </section>
+    </aside>
+  </main>
+
+  <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/shared.js"></script>
+  <script src="js/host.js"></script>
+</body>
+</html>

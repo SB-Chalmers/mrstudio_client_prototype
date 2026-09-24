@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>MR Studio · Controller</title>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body class="client-page">
+  <header class="client-header">
+    <div><p class="eyebrow">MR Studio</p><h1>Table controller</h1></div>
+    <div class="client-status-wrap"><span id="client-status" class="client-status">Connecting…</span><span id="client-slot" class="client-slot"></span></div>
+  </header>
+  <div id="connection-error" class="connection-error" hidden><span id="error-text"></span><button id="retry-button" type="button">Retry</button></div>
+
+  <main class="client-main">
+    <nav class="layer-tabs" aria-label="Shared map layer">
+      <button type="button" data-layer="streets" class="active">Streets</button>
+      <button type="button" data-layer="buildings">Buildings</button>
+      <button type="button" data-layer="terrain">Terrain</button>
+    </nav>
+
+    <section id="map-viewport" class="map-viewport" aria-label="Interactive table map">
+      <div id="map-stage" class="map-stage"><svg id="client-map" class="map-svg" viewBox="0 0 1000 600" role="img" aria-label="Shared annotated table map"></svg></div>
+      <div class="map-zoom" aria-label="Local map zoom"><button id="zoom-out" type="button" aria-label="Zoom out">−</button><button id="zoom-reset" type="button" aria-label="Reset zoom">1×</button><button id="zoom-in" type="button" aria-label="Zoom in">+</button></div>
+      <div class="map-tip">One finger edits · Two fingers move or zoom your view</div>
+    </section>
+
+    <section class="controller-panel" aria-label="Map tools">
+      <div class="tool-grid" role="group" aria-label="Editing tool">
+        <button class="tool active" type="button" data-tool="point"><span class="tool-icon">●</span><span>Point / move</span></button>
+        <button class="tool" type="button" data-tool="route"><span class="tool-icon">↗</span><span>Route</span></button>
+        <button class="tool" type="button" data-tool="polygon"><span class="tool-icon">⬡</span><span>Polygon</span></button>
+        <button class="tool" type="button" data-tool="sticker"><span class="tool-icon">★</span><span>Sticker</span></button>
+        <button class="tool" type="button" data-tool="comment"><span class="tool-icon">✎</span><span>Comment</span></button>
+      </div>
+      <div id="tool-options" class="tool-options">
+        <span id="tool-hint">Tap to add a point. Drag an existing point to move it.</span>
+        <div id="polygon-actions" class="option-actions" hidden><button id="finish-polygon" type="button">Finish polygon</button><button id="cancel-polygon" class="quiet-button" type="button">Cancel</button></div>
+        <div id="sticker-options" class="option-actions" hidden><span>Sticker:</span><button class="sticker-choice selected" type="button" data-sticker="star" aria-label="Star sticker">★</button><button class="sticker-choice" type="button" data-sticker="flag" aria-label="Flag sticker">⚑</button><button class="sticker-choice" type="button" data-sticker="alert" aria-label="Alert sticker">!</button></div>
+        <label id="comment-option" class="comment-option" hidden><span>Comment, then tap map:</span><input id="comment-text" type="text" maxlength="140" placeholder="Add a short note" autocomplete="off"></label>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
+  <script src="js/shared.js"></script>
+  <script src="js/client.js"></script>
+</body>
+</html>
