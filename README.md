@@ -14,13 +14,13 @@ Phone 2 ─┘                  │              │
 
 ## Run the Host
 
-From this repository directory:
+From this repository directory, run:
 
 ```bash
-python3 -m http.server 8123 --bind 127.0.0.1
+./launch_host_server.sh
 ```
 
-Open `http://127.0.0.1:8123/` on the Host computer. The session, PeerJS ID, invitation URL, and QR code are created automatically. The Host shows a 0–2 connected count, slot status, shared map, and recent input log.
+The script opens `http://127.0.0.1:8123/` on the Host computer. Press Ctrl+C to stop it. Pass a different port if needed, for example `./launch_host_server.sh 8124`. The session, PeerJS ID, invitation URL, and QR code are created automatically. The Host shows a 0–2 connected count, slot status, shared map, and recent input log.
 
 The Host computer and phones need internet access for PeerJS signaling. The local Python server only serves files to the Host browser; phones open the GitHub Pages Client URL contained in the QR.
 
@@ -40,7 +40,7 @@ For a same-computer browser check before Pages is available, temporarily set the
 
 1. Scan the Host QR on the first phone, then scan the **same QR** on the second phone. They become Controller 1 and Controller 2 in arrival order.
 2. Select a shared layer tab. The Host and both phones show that layer.
-3. Choose a local tool: **Point / move** places a point on tap or drags an existing point; **Route** places origin and destination in two taps; **Polygon** adds any number of vertices, then Finish closes the shape; **Sticker** places a selected symbol; **Comment** places typed text at a tap location.
+3. Choose a local tool: **Point / move** places a point on tap or drags an existing point; **Route** places origin and destination in two taps; **Polygon** adds any number of vertices, then tap its highlighted first corner to close it (or use Close polygon); **Sticker** places a selected symbol; **Comment** takes text first, then places it where you tap the map.
 4. Use two fingers to zoom or pan the phone's view, or use the `+`, `−`, and reset buttons. This only changes that phone's view. Inputs always use the normalized position within the full table extent.
 
 Controller colors distinguish edits on every display. A returning tab receives the latest Host state. The Host holds state only in memory, so refreshing it starts a new session and clears annotations and invitations.

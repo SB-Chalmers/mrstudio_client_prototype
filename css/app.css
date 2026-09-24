@@ -457,6 +457,31 @@ h2 {
   font-weight:800
 }
 
+.placement-banner {
+  position:absolute;
+  top:.55rem;
+  left:.55rem;
+  z-index:2;
+  max-width:calc(100% - 8rem);
+  padding:.6rem .75rem;
+  border-radius:9px;
+  background:#fff5d7;
+  color:#19382c;
+  box-shadow:0 4px 16px #0004;
+  font-size:.78rem;
+  font-weight:800;
+  line-height:1.25;
+  pointer-events:none
+}
+
+.placement-banner[hidden] {
+  display:none
+}
+
+.placement-banner.ready {
+  background:#b6edce
+}
+
 .map-tip {
   position:absolute;
   bottom:.4rem;

@@ -15,6 +15,7 @@
   const map = document.getElementById("client-map");
   const hint = document.getElementById("tool-hint");
   const commentInput = document.getElementById("comment-text");
+  const commentPlacement = document.getElementById("comment-placement");
   let state = MR.blankState();
   let peer = null;
   let connection = null;
@@ -55,6 +56,16 @@
 
   function sendButton(button) { send({ type: "button", button, state: "pressed" }); }
 
+  function updateCommentPrompt() {
+    commentPlacement.hidden = selectedTool !== "comment";
+    if (selectedTool !== "comment") return;
+    const hasText = Boolean(commentInput.value.trim());
+    commentPlacement.textContent = hasText
+      ? "2 · Tap a spot on the map to place your comment"
+      : "Type your comment below, then tap its spot on the map";
+    commentPlacement.classList.toggle("ready", hasText);
+  }
+
   function render() {
     MR.renderMap(map, state);
     document.querySelectorAll("[data-layer]").forEach(button => {
@@ -62,7 +73,10 @@
     });
     if (selectedTool === "polygon") {
       const count = slot && state.drafts && state.drafts[slot] ? state.drafts[slot].polygon.length : 0;
-      hint.textContent = `Tap corners, then Finish (${count} placed; minimum 3).`;
+      hint.textContent = count >= 3
+        ? `Tap the highlighted first corner to close (${count} corners).`
+        : `Tap corners (${count} placed; minimum 3).`;
+      document.getElementById("finish-polygon").disabled = count < 3;
     }
   }
 
@@ -196,9 +210,15 @@
     };
     hint.textContent = hints[selectedTool];
     hint.hidden = selectedTool === "comment";
+    updateCommentPrompt();
+    if (selectedTool === "comment") commentInput.focus();
     sendButton(`tool:${selectedTool}`);
     render();
   }));
+  commentInput.addEventListener("input", updateCommentPrompt);
+  commentInput.addEventListener("keydown", event => {
+    if (event.key === "Enter") commentInput.blur();
+  });
   document.querySelectorAll("[data-sticker]").forEach(button => button.addEventListener("click", () => {
     selectedSticker = button.dataset.sticker;
     document.querySelectorAll("[data-sticker]").forEach(item => item.classList.toggle("selected", item === button));
@@ -265,8 +285,12 @@
     if (phase === "up" && selectedTool === "sticker") message.sticker = selectedSticker;
     if (phase === "up" && selectedTool === "comment") {
       message.text = commentInput.value.trim();
-      if (!message.text) hint.textContent = "Type a comment, then tap the map.";
-      else commentInput.value = "";
+      if (!message.text) commentInput.focus();
+      else {
+        commentInput.value = "";
+        commentInput.blur();
+      }
+      updateCommentPrompt();
     }
     send(message);
   }

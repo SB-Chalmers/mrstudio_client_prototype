@@ -120,6 +120,13 @@
     if (draft.polygon && draft.polygon.length) {
       if (draft.polygon.length > 1) add(svg, "polyline", { points: draft.polygon.map(xy).join(" "), fill: "none", stroke: color, "stroke-width": 5, "stroke-dasharray": "12 8" });
       draft.polygon.forEach(point => marker(svg, point, color));
+      if (draft.polygon.length >= 3) {
+        const first = draft.polygon[0];
+        add(svg, "circle", { cx: first.x * 1000, cy: first.y * 600, r: 38, fill: "#fffdf0", "fill-opacity": .5, stroke: color, "stroke-width": 5, "stroke-dasharray": "10 6" });
+        marker(svg, first, color);
+        const rightSide = first.x > .7;
+        add(svg, "text", { x: first.x * 1000 + (rightSide ? -46 : 46), y: Math.max(24, first.y * 600 - 15), "text-anchor": rightSide ? "end" : "start", fill: color, "font-size": 19, "font-weight": 800, "paint-order": "stroke", stroke: "#fffdf0", "stroke-width": 5 }, `Tap to close · C${controllerId}`);
+      }
     }
   }
 

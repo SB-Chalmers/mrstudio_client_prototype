@@ -108,6 +108,21 @@
       if (target) { target.x = point.x; target.y = point.y; broadcastState(); }
       return;
     }
+    if (gesture.tool === "polygon") {
+      const vertices = state.drafts[controllerId].polygon;
+      // Returning to the highlighted first corner closes the outline. Check
+      // before the tap-distance rule so a short drag to that corner also works.
+      const start = vertices[0];
+      const nearStart = start && Math.hypot((point.x - start.x) * 1000, (point.y - start.y) * 600) <= 55;
+      if (nearStart && vertices.length < 3) return;
+      if (nearStart) {
+        createObject("polygon", controllerId, { points: vertices.slice() });
+        state.drafts[controllerId].polygon = [];
+        log(controllerId, "closed polygon");
+        broadcastState();
+        return;
+      }
+    }
     // Touch movement is not a tap. Coordinates are already normalized to the
     // full table map, even when the Client has zoomed its local view.
     if (distance(gesture.start, point) > .025) return;
