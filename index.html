@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#ffffff">
   <title>MR Studio · Session Host</title>
-  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/app.css?v=20260924-2">
 </head>
 <body class="host-page">
   <header class="host-header">
@@ -42,14 +42,14 @@
         <p id="latest-action" class="latest-action">Waiting for input…</p>
         <ol id="event-log" class="event-log" aria-live="polite"></ol>
       </section>
-      <section class="card"><p class="eyebrow">Round record</p><h2>Session log</h2><p class="muted tiny">Actions and map snapshots are saved after each change.</p><a id="session-download" class="invite-link" href="#">Download JSON log</a><p id="save-status" class="tiny muted">Starting log…</p></section>
+      <section class="card"><p class="eyebrow">Round record</p><h2>Saved on this computer</h2><p class="muted tiny">The local Host server saves actions and map snapshots in the sessions folder after each change. Keep the server running during the round.</p><a id="session-download" class="invite-link" href="#">Download JSON log</a><p id="save-status" class="tiny muted">Starting local recording…</p></section>
     </aside>
   </main>
 
   <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/shared.js"></script>
-  <script src="js/host.js"></script>
+  <script src="js/config.js?v=20260924-2"></script>
+  <script src="js/shared.js?v=20260924-2"></script>
+  <script src="js/host.js?v=20260924-2"></script>
 </body>
 </html>

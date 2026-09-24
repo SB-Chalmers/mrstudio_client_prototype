@@ -1,6 +1,9 @@
 (function () {
   "use strict";
 
+  // Bump alongside the asset query strings in index.html and client.html.
+  const RELEASE = "20260924-2";
+
   const NS = "http://www.w3.org/2000/svg";
   const LAYERS = ["streets", "buildings", "terrain"];
   const TOOLS = ["point", "route", "polygon", "sticker", "comment"];
@@ -137,5 +140,5 @@
     }
   }
 
-  window.MR = { LAYERS, TOOLS, STICKERS, COLORS, AVATARS, ADJECTIVES, ANIMALS, blankState, randomId, validInput, renderMap };
+  window.MR = { RELEASE, LAYERS, TOOLS, STICKERS, COLORS, AVATARS, ADJECTIVES, ANIMALS, blankState, randomId, validInput, renderMap };
 })();

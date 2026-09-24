@@ -50,11 +50,11 @@
     revision++;
     const thisRevision = revision;
     const payload = JSON.stringify(roundDocument());
-    saveStatus.textContent = "Saving session log…";
+    saveStatus.textContent = "Saving on this computer…";
     saveChain = saveChain.catch(() => {}).then(async () => {
       const response = await fetch("/api/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: payload });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      if (thisRevision === revision) saveStatus.textContent = `Saved · ${events.length} events · sessions/${sessionId}.json`;
+      if (thisRevision === revision) saveStatus.textContent = `Saved locally · ${events.length} events · sessions/${sessionId}.json`;
     }).catch(error => { if (thisRevision === revision) saveStatus.textContent = `Could not save log: ${error.message}`; });
   }
   function record(kind, person, details, description) {
@@ -307,7 +307,8 @@
       const url = new URL(configured);
       const localHttp = url.protocol === "http:" && ["127.0.0.1", "localhost"].includes(url.hostname);
       if (url.protocol !== "https:" && !localHttp) throw new Error("Client URL must use HTTPS");
-      url.searchParams.set("host", peerId); url.searchParams.set("token", token); inviteUrl = url.toString();
+      url.searchParams.set("host", peerId); url.searchParams.set("token", token);
+      url.searchParams.set("v", MR.RELEASE); inviteUrl = url.toString();
       qrElement.replaceChildren();
       if (typeof QRCode !== "function") throw new Error("QR library unavailable");
       new QRCode(qrElement, { text: inviteUrl, width: 192, height: 192, correctLevel: QRCode.CorrectLevel.M });

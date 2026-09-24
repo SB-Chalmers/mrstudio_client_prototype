@@ -26,6 +26,8 @@ https://sb-chalmers.github.io/mrstudio_client_prototype/client.html
 
 Change that address if the Pages site moves, then reload the Host to create a new QR. The Host appends its current PeerJS ID and random token automatically. The URL is a bearer invitation; share it only with intended participants.
 
+The HTML files version their CSS and JavaScript URLs to avoid reusing files from an older release. When changing those assets, update their `v` values in both HTML files and `MR.RELEASE` in `js/shared.js` together. New QR invitations include that release value. After deploying an update, reload the local Host and scan its new QR. GitHub Pages serves the phone interface; session JSON files are written only by the local Host server.
+
 For a browser-only local check before Pages is ready, temporarily configure `http://127.0.0.1:8123/client.html`, reload the Host, and open its invitation link in separate browsers or private profiles. Restore the Pages address before scanning from phones.
 
 ## Join and edit
