@@ -3,6 +3,18 @@
 
   const MR = window.MR;
   const parameters = new URLSearchParams(location.search);
+  if (!parameters.has("host") || !parameters.has("token")) {
+    try {
+      const previous = new URL(localStorage.getItem("mr-studio-last-invitation"));
+      if (previous.origin === location.origin && previous.pathname === location.pathname) {
+        parameters.set("host", previous.searchParams.get("host"));
+        parameters.set("token", previous.searchParams.get("token"));
+        history.replaceState(null, "", `${location.pathname}?${parameters}`);
+      }
+    } catch { /* No saved invitation. */ }
+  } else {
+    try { localStorage.setItem("mr-studio-last-invitation", location.href); } catch { /* Private mode. */ }
+  }
   const hostId = parameters.get("host") || "";
   const token = parameters.get("token") || "";
   const status = document.getElementById("client-status");
@@ -16,7 +28,14 @@
   const hint = document.getElementById("tool-hint");
   const commentInput = document.getElementById("comment-text");
   const commentPlacement = document.getElementById("comment-placement");
+  const lobby = document.getElementById("lobby");
+  const clientMain = document.getElementById("client-main");
+  const identity = document.getElementById("controller-identity");
+  const profileName = document.getElementById("profile-name");
+  const avatarButton = document.getElementById("avatar-button");
   let state = MR.blankState();
+  let participants = [];
+  let slots = [];
   let peer = null;
   let connection = null;
   let connected = false;
@@ -26,15 +45,28 @@
   let connectionTimer = null;
   let selectedTool = "point";
   let selectedSticker = "star";
+  let lobbyOpen = false;
+  let lastPong = 0;
 
-  // A tab keeps its ID across refresh and reconnect, allowing the Host to put
-  // it back in the same controller slot while that session still exists.
-  const storageKey = `mr-studio-controller:${hostId}`;
+  // Keep this browser's identity for the lifetime of the invitation, including
+  // a tab close and reopen. Session storage remains a fallback in private mode.
+  const storageKey = `mr-studio-controller:${hostId}:${token}`;
   let clientId;
   try {
-    clientId = sessionStorage.getItem(storageKey) || MR.randomId();
+    clientId = localStorage.getItem(storageKey) || sessionStorage.getItem(storageKey) || MR.randomId();
+    if (!/^[0-9a-f]{32}$/.test(clientId)) clientId = MR.randomId();
+    localStorage.setItem(storageKey, clientId);
     sessionStorage.setItem(storageKey, clientId);
-  } catch { clientId = MR.randomId(); }
+  } catch {
+    try {
+      clientId = sessionStorage.getItem(storageKey) || MR.randomId();
+      sessionStorage.setItem(storageKey, clientId);
+    } catch { clientId = MR.randomId(); }
+  }
+  const profileKey = `${storageKey}:profile`;
+  let savedProfile = null;
+  try { savedProfile = JSON.parse(localStorage.getItem(profileKey)); } catch { /* Storage unavailable. */ }
+  if (!savedProfile || typeof savedProfile.name !== "string" || !savedProfile.name.trim() || savedProfile.name.trim().length > 32 || !MR.AVATARS.includes(savedProfile.avatar)) savedProfile = null;
 
   function setStatus(text, tone) {
     status.textContent = text;
@@ -56,6 +88,35 @@
 
   function sendButton(button) { send({ type: "button", button, state: "pressed" }); }
 
+  function renderLobby() {
+    const me = participants.find(person => person.id === clientId);
+    slot = me?.slot || null;
+    lobby.hidden = !connected || Boolean(slot && !lobbyOpen);
+    clientMain.hidden = !connected || !slot || lobbyOpen;
+    identity.hidden = !connected || !slot || lobbyOpen;
+    document.getElementById("return-map").hidden = !slot;
+    document.getElementById("leave-slot").hidden = !slot;
+    slotLabel.textContent = connected ? (slot ? `Controller ${slot} · ${participants.filter(person => person.online && person.slot).length}/4 online` : "Choose a slot") : (slot ? `Controller ${slot}` : "");
+    if (me) {
+      document.getElementById("identity-avatar").textContent = me.avatar;
+      document.getElementById("identity-name").textContent = me.name;
+      avatarButton.textContent = avatarButton.dataset.editing === "true" ? avatarButton.textContent : me.avatar;
+      if (document.activeElement !== profileName && !profileName.dataset.editing) profileName.value = me.name;
+    }
+    const list = document.getElementById("lobby-slots"); list.replaceChildren();
+    for (const entry of slots) {
+      const person = participants.find(item => item.id === entry.clientId);
+      const button = document.createElement("button"); button.type = "button"; button.className = "lobby-slot";
+      button.disabled = Boolean(person && person.id !== clientId);
+      const title = document.createElement("strong"); title.textContent = `Controller ${entry.id}`;
+      const detail = document.createElement("span"); detail.textContent = person ? (person.id === clientId ? "Your slot" : `${person.avatar} ${person.name} · ${person.online ? "online" : "reserved"}`) : "Available";
+      button.append(title, detail);
+      if (person) button.style.setProperty("--person-color", person.color);
+      button.addEventListener("click", () => { if (person?.id === clientId) { lobbyOpen = false; renderLobby(); } else { lobbyOpen = false; send({ type: "claim-slot", slot: entry.id }); } });
+      list.append(button);
+    }
+  }
+
   function updateCommentPrompt() {
     commentPlacement.hidden = selectedTool !== "comment";
     if (selectedTool !== "comment") return;
@@ -68,6 +129,7 @@
 
   function render() {
     MR.renderMap(map, state);
+    renderLobby();
     document.querySelectorAll("[data-layer]").forEach(button => {
       button.classList.toggle("active", button.dataset.layer === state.layer);
     });
@@ -89,19 +151,26 @@
       if (connection) connection.close();
       return;
     }
+    if (message.type === "pong") { lastPong = Date.now(); return; }
+    if (message.type === "notice") {
+      errorText.textContent = message.text || "Action not accepted.";
+      retryButton.hidden = true; errorPanel.hidden = false; return;
+    }
     if (message.type === "welcome") {
       connected = true;
       rejected = false;
       clearTimeout(retryTimer);
       retryTimer = null;
-      slot = message.slot;
-      slotLabel.textContent = `Controller ${slot} · ${message.connectedCount}/2 online`;
+      lastPong = Date.now();
       setStatus("Connected", "connected");
       clearError();
       clearTimeout(connectionTimer);
+      if (savedProfile) send({ type: "profile", ...savedProfile });
     } else if (message.type !== "state") return;
     if (message.state && typeof message.state === "object") state = message.state;
-    if (connected) slotLabel.textContent = `Controller ${slot} · ${message.connectedCount}/2 online`;
+    if (Array.isArray(message.participants)) participants = message.participants;
+    if (Array.isArray(message.slots)) slots = message.slots;
+    clearError();
     render();
   }
 
@@ -135,6 +204,7 @@
       if (connection !== current) return;
       connection = null;
       connected = false;
+      renderLobby();
       clearTimeout(connectionTimer);
       slotLabel.textContent = slot ? `Controller ${slot}` : "";
       if (!rejected) {
@@ -152,25 +222,32 @@
 
   function startPeer() {
     if (typeof Peer !== "function") { showError("PeerJS did not load. Check your connection and reload.", true); return; }
-    peer = new Peer();
-    peer.on("open", connectToHost);
-    peer.on("disconnected", () => {
-      if (!peer.destroyed) {
-        try { peer.reconnect(); } catch { scheduleRetry(); }
+    const currentPeer = new Peer();
+    peer = currentPeer;
+    currentPeer.on("open", () => { if (peer === currentPeer) connectToHost(); });
+    currentPeer.on("disconnected", () => {
+      if (peer === currentPeer && !currentPeer.destroyed) {
+        try { currentPeer.reconnect(); } catch { scheduleRetry(); }
       }
     });
-    peer.on("error", error => {
-      if (rejected) return;
+    currentPeer.on("error", error => {
+      if (peer !== currentPeer || rejected) return;
       showError(`PeerJS: ${error.type || "network error"}. Retrying…`, true);
       scheduleRetry();
     });
   }
 
-  function attemptConnection() {
+  function attemptConnection(force) {
     if (rejected) return;
-    if (connected && connection && connection.open) return;
+    if (!force && connected && connection && connection.open) return;
     clearTimeout(retryTimer);
     retryTimer = null;
+    if (force && peer && !peer.destroyed) {
+      const previousPeer = peer;
+      peer = null; connection = null; connected = false;
+      renderLobby();
+      previousPeer.destroy();
+    }
     if (!peer || peer.destroyed) { startPeer(); return; }
     if (peer.disconnected) {
       try { peer.reconnect(); } catch { peer.destroy(); startPeer(); }
@@ -184,13 +261,42 @@
     connectToHost();
   }
 
+  setInterval(() => {
+    if (!connected || !connection?.open) return;
+    if (Date.now() - lastPong > 25000) { attemptConnection(true); return; }
+    send({ type: "ping" });
+  }, 8000);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState !== "visible") return;
+    if (!connected || !connection?.open || Date.now() - lastPong > 16000) attemptConnection(true);
+    else send({ type: "ping" });
+  });
+
   retryButton.addEventListener("click", () => {
     rejected = false;
     clearTimeout(retryTimer);
     retryTimer = null;
     clearError();
-    attemptConnection();
+    attemptConnection(true);
   });
+
+  avatarButton.addEventListener("click", () => {
+    const index = MR.AVATARS.indexOf(avatarButton.textContent);
+    avatarButton.textContent = MR.AVATARS[(index + 1) % MR.AVATARS.length];
+    avatarButton.dataset.editing = "true";
+  });
+  profileName.addEventListener("input", () => { profileName.dataset.editing = "true"; });
+  document.getElementById("save-profile").addEventListener("click", () => {
+    const name = profileName.value.trim().slice(0, 32);
+    if (!name) { profileName.focus(); return; }
+    savedProfile = { name, avatar: avatarButton.textContent };
+    try { localStorage.setItem(profileKey, JSON.stringify(savedProfile)); } catch { /* Private mode. */ }
+    delete avatarButton.dataset.editing; delete profileName.dataset.editing;
+    send({ type: "profile", ...savedProfile });
+  });
+  document.getElementById("change-slot").addEventListener("click", () => { lobbyOpen = true; renderLobby(); });
+  document.getElementById("return-map").addEventListener("click", () => { lobbyOpen = false; renderLobby(); });
+  document.getElementById("leave-slot").addEventListener("click", () => { send({ type: "release-slot" }); lobbyOpen = true; });
 
   document.querySelectorAll("[data-layer]").forEach(button => button.addEventListener("click", () => {
     sendButton(`layer:${button.dataset.layer}`);
@@ -303,7 +409,7 @@
   }
 
   stage.addEventListener("pointerdown", event => {
-    if (!connected) return;
+    if (!connected || !slot || lobbyOpen) return;
     event.preventDefault();
     stage.setPointerCapture(event.pointerId);
     pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });

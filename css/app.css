@@ -701,3 +701,29 @@ h2 {
     font-size:.55rem
   }
 }
+
+[hidden] { display:none!important }
+.host-session-actions { display:flex; align-items:center; gap:.6rem }
+.participant-strip { display:flex; align-items:center; gap:1rem; margin:-.4rem 0 1.2rem; flex-wrap:wrap }
+.participant-strip .eyebrow { margin:0 }
+.participant-bubbles { display:flex; align-items:center; gap:.45rem; flex-wrap:wrap }
+.person-bubble { display:flex; align-items:center; gap:.35rem; padding:.25rem .55rem .25rem .25rem; border:1px solid color-mix(in srgb,var(--person-color),white 65%); border-radius:999px; background:#fff; color:#263a2c; font-size:.75rem; font-weight:700 }
+.person-bubble.offline { opacity:.48 }
+.person-avatar { display:grid; place-items:center; width:1.9rem; height:1.9rem; border-radius:50%; background:color-mix(in srgb,var(--person-color),white 85%); border:2px solid var(--person-color); font-size:1.05rem }
+.slot .quiet-button { padding:.25rem .4rem }
+.lobby { padding:1.1rem; overflow:auto; flex:1; background:#fff }
+.lobby h2 { margin:1.3rem 0 .3rem }
+.profile-row { display:flex; align-items:end; gap:.55rem }
+.avatar-button { width:3.2rem; height:3.2rem; flex:none; border:1px solid #cbdcd0; border-radius:50%; background:#f2f7f3; font-size:1.7rem }
+.profile-name { flex:1; min-width:0; color:#596b60; font-size:.7rem; font-weight:700 }
+.profile-name input { display:block; width:100%; padding:.5rem; margin-top:.2rem; border:1px solid #cbdcd0; border-radius:8px; color:#1d2b25; background:#fff }
+.lobby-slots { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.55rem; max-width:36rem }
+.lobby-slot { display:flex; flex-direction:column; align-items:start; gap:.25rem; padding:.85rem; border:1px solid #d8e4db; border-radius:11px; background:#fff; color:#274a34; text-align:left }
+.lobby-slot:disabled { color:#697a6e; background:#f4f6f4; opacity:.8 }
+.lobby-slot span { font-size:.75rem; color:#68786e }
+.lobby-actions { display:flex; gap:.5rem; margin-top:1rem }
+.controller-identity { display:flex; align-items:center; gap:.45rem; padding:.35rem .8rem; border-bottom:1px solid #e3eae4; font-size:.78rem }
+.controller-identity .quiet-button { margin-left:auto; font-size:.7rem }
+#identity-avatar { font-size:1.3rem }
+@media(max-width:620px) { .host-session-actions { flex-wrap:wrap; justify-content:end } }
+@media(orientation:landscape) and (max-height:560px) { .lobby { padding:.6rem 1rem } .lobby h2 { margin:.6rem 0 .2rem } .controller-identity { padding:.2rem .7rem } }

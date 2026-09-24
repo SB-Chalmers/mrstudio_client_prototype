@@ -5,7 +5,10 @@
   const LAYERS = ["streets", "buildings", "terrain"];
   const TOOLS = ["point", "route", "polygon", "sticker", "comment"];
   const STICKERS = { star: "★", flag: "⚑", alert: "!" };
-  const COLORS = { 1: "#0788b9", 2: "#d97717" };
+  const COLORS = { 1: "#0788b9", 2: "#d97717", 3: "#9a59ae", 4: "#19866c" };
+  const AVATARS = ["🦊", "🐙", "🦉", "🐸", "🦝", "🐢", "🐧", "🦋", "🦖", "🐝", "🐳", "🦄"];
+  const ADJECTIVES = ["Cosmic", "Merry", "Wobbly", "Swift", "Curious", "Dancing", "Sunny", "Sneaky", "Jolly", "Tiny", "Brave", "Fuzzy"];
+  const ANIMALS = ["Otter", "Badger", "Penguin", "Axolotl", "Fox", "Gecko", "Puffin", "Koala", "Llama", "Newt", "Moth", "Walrus"];
 
   function blankState() {
     return {
@@ -13,7 +16,9 @@
       objects: [],
       drafts: {
         1: { routeStart: null, polygon: [] },
-        2: { routeStart: null, polygon: [] }
+        2: { routeStart: null, polygon: [] },
+        3: { routeStart: null, polygon: [] },
+        4: { routeStart: null, polygon: [] }
       }
     };
   }
@@ -71,7 +76,7 @@
     for (let y = 200; y < 600; y += 200) add(svg, "line", { x1: 0, y1: y, x2: 1000, y2: y, stroke: "#223c30", "stroke-width": 2, "stroke-dasharray": "7 9", opacity: .37 });
     add(svg, "rect", { x: 2, y: 2, width: 996, height: 596, rx: 8, fill: "none", stroke: "#1a4936", "stroke-width": 4 });
     for (const object of state.objects || []) drawObject(svg, object);
-    for (const controllerId of [1, 2]) drawDraft(svg, state.drafts && state.drafts[controllerId], controllerId);
+    for (const controllerId of [1, 2, 3, 4]) drawDraft(svg, state.drafts && state.drafts[controllerId], controllerId);
   }
 
   function xy(point) { return `${point.x * 1000},${point.y * 600}`; }
@@ -83,10 +88,12 @@
   }
 
   function drawObject(svg, object) {
-    const color = COLORS[object.controllerId] || COLORS[1];
+    const color = object.color || COLORS[object.controllerId] || COLORS[1];
+    const label = object.creatorName ? `${object.creatorName} · C${object.controllerId}` : `C${object.controllerId}`;
     if (object.type === "point") {
       // The larger transparent hit area makes dragging practical on phones.
       marker(svg, object, color, `C${object.controllerId}`, object.id);
+      add(svg, "title", {}, `${label} · point`);
       add(svg, "circle", { cx: object.x * 1000, cy: object.y * 600, r: 28, fill: "transparent", "data-object-id": object.id });
     } else if (object.type === "route") {
       add(svg, "line", { x1: object.points[0].x * 1000, y1: object.points[0].y * 600, x2: object.points[1].x * 1000, y2: object.points[1].y * 600, stroke: color, "stroke-width": 7, "stroke-linecap": "round", "stroke-dasharray": "17 9" });
@@ -109,13 +116,13 @@
       add(group, "path", { d: `M${object.x * 1000} ${object.y * 600} L${left + 10} ${top + 43}`, stroke: color, "stroke-width": 3 });
       add(group, "rect", { x: left, y: top, width, height: 44, rx: 9, fill: "#fffdf2", stroke: color, "stroke-width": 3 });
       add(group, "text", { x: left + 10, y: top + 28, fill: "#17352c", "font-size": 16, "font-weight": 700 }, `C${object.controllerId}: ${text}`);
-      add(group, "title", {}, object.text);
+      add(group, "title", {}, `${label}: ${object.text}`);
     }
   }
 
   function drawDraft(svg, draft, controllerId) {
     if (!draft) return;
-    const color = COLORS[controllerId];
+    const color = draft.color || COLORS[controllerId];
     if (draft.routeStart) marker(svg, draft.routeStart, color, `Origin · C${controllerId}`);
     if (draft.polygon && draft.polygon.length) {
       if (draft.polygon.length > 1) add(svg, "polyline", { points: draft.polygon.map(xy).join(" "), fill: "none", stroke: color, "stroke-width": 5, "stroke-dasharray": "12 8" });
@@ -130,5 +137,5 @@
     }
   }
 
-  window.MR = { LAYERS, TOOLS, STICKERS, blankState, randomId, validInput, renderMap };
+  window.MR = { LAYERS, TOOLS, STICKERS, COLORS, AVATARS, ADJECTIVES, ANIMALS, blankState, randomId, validInput, renderMap };
 })();

@@ -13,8 +13,9 @@
       <p class="eyebrow">MR Studio · collaboration prototype</p>
       <h1>Session Host</h1>
     </div>
-    <div class="session-pill"><span id="host-status-dot" class="status-dot"></span><span id="host-status">Starting session…</span></div>
+    <div class="host-session-actions"><div class="session-pill"><span id="host-status-dot" class="status-dot"></span><span id="host-status">Starting session…</span></div><button id="end-session" class="quiet-button" type="button">End session</button></div>
   </header>
+  <section class="participant-strip" aria-label="People in this session"><span class="eyebrow">People</span><div id="host-participants" class="participant-bubbles"><span class="muted">Waiting for phones…</span></div></section>
 
   <main class="host-layout">
     <section class="map-panel" aria-label="Shared table map">
@@ -23,23 +24,25 @@
         <strong id="host-layer-label" class="layer-label">Streets</strong>
       </div>
       <div class="host-map-frame"><svg id="host-map" class="map-svg" viewBox="0 0 1000 600" role="img" aria-label="Shared annotated table map"></svg></div>
-      <div class="map-footer"><span>100 × 60 cm table extent · 5 × 3 tiles</span><span>Controller 1 <i class="legend-dot c1"></i> &nbsp; Controller 2 <i class="legend-dot c2"></i></span></div>
+      <div class="map-footer"><span>100 × 60 cm table extent · 5 × 3 tiles</span><span>Edits use each person’s color</span></div>
     </section>
 
     <aside class="host-sidebar">
       <section class="card invite-card">
-        <div class="panel-heading"><div><p class="eyebrow">Session</p><h2>Join with a phone</h2></div><span id="client-count" class="count-badge">0 / 2</span></div>
-        <p class="muted">Both phones scan this QR. The Host assigns Controller 1 and Controller 2 as they join.</p>
+        <div class="panel-heading"><div><p class="eyebrow">Session</p><h2>Join with a phone</h2></div><span id="client-count" class="count-badge">0 / 4</span></div>
+        <p class="muted">Everyone scans the same QR, gets a profile, then chooses one of four controller slots.</p>
         <div id="qr-code" class="qr-code" aria-label="Client invitation QR code"><span class="muted">Creating session…</span></div>
         <div class="invite-actions"><a id="invite-link" class="invite-link" href="#" target="_blank" rel="noopener">Client invitation</a><button id="copy-link" class="quiet-button" type="button" disabled>Copy link</button></div>
         <p id="invite-hint" class="tiny muted">Client page: GitHub Pages</p>
-        <div class="slot-list"><div class="slot"><span><i class="legend-dot c1"></i> Controller 1</span><strong id="slot-1">Waiting</strong></div><div class="slot"><span><i class="legend-dot c2"></i> Controller 2</span><strong id="slot-2">Waiting</strong></div></div>
+        <div id="host-slots" class="slot-list"></div>
+        <p class="tiny muted">Disconnected slots stay reserved. Use Release to free one.</p>
       </section>
       <section class="card monitor-card">
         <div class="panel-heading"><div><p class="eyebrow">Input monitor</p><h2>Recent actions</h2></div></div>
         <p id="latest-action" class="latest-action">Waiting for input…</p>
         <ol id="event-log" class="event-log" aria-live="polite"></ol>
       </section>
+      <section class="card"><p class="eyebrow">Round record</p><h2>Session log</h2><p class="muted tiny">Actions and map snapshots are saved after each change.</p><a id="session-download" class="invite-link" href="#">Download JSON log</a><p id="save-status" class="tiny muted">Starting log…</p></section>
     </aside>
   </main>
 

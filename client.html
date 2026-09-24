@@ -13,8 +13,14 @@
     <div class="client-status-wrap"><span id="client-status" class="client-status">Connecting…</span><span id="client-slot" class="client-slot"></span></div>
   </header>
   <div id="connection-error" class="connection-error" hidden><span id="error-text"></span><button id="retry-button" type="button">Retry</button></div>
+  <section id="lobby" class="lobby" hidden>
+    <p class="eyebrow">Your profile</p><div class="profile-row"><button id="avatar-button" class="avatar-button" type="button" aria-label="Change avatar">🦊</button><label class="profile-name">Name<input id="profile-name" type="text" maxlength="32" autocomplete="nickname"></label><button id="save-profile" class="quiet-button" type="button">Save</button></div>
+    <p class="muted tiny">Tap the avatar to change it. Your profile is kept on this phone for this session.</p>
+    <h2>Choose a controller slot</h2><p class="muted tiny">Only the four slot occupants can edit. Your map and edits stay on the Host if this phone disconnects.</p><div id="lobby-slots" class="lobby-slots"></div><div class="lobby-actions"><button id="return-map" class="quiet-button" type="button" hidden>Back to map</button><button id="leave-slot" class="quiet-button" type="button" hidden>Leave my slot</button></div>
+  </section>
+  <div id="controller-identity" class="controller-identity" hidden><span id="identity-avatar"></span><strong id="identity-name"></strong><button id="change-slot" class="quiet-button" type="button">Profile &amp; slots</button></div>
 
-  <main class="client-main">
+  <main id="client-main" class="client-main" hidden>
     <nav class="layer-tabs" aria-label="Shared map layer">
       <button type="button" data-layer="streets" class="active">Streets</button>
       <button type="button" data-layer="buildings">Buildings</button>
